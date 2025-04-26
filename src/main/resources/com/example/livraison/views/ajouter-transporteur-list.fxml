@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.Scene?>
+<?import javafx.stage.Stage?>
+
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.livraison.Controllers.TransporteurListController"
+            prefHeight="500.0" prefWidth="600.0"
+            stylesheets="@/style-list.css">
+
+    <VBox layoutX="20" layoutY="20" spacing="15">
+        <Label text="Liste des Transporteurs:" styleClass="section-title" />
+
+        <ListView fx:id="listViewTransporteurs" prefWidth="550" prefHeight="350">
+        </ListView>
+
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Mettre à jour" fx:id="btnMettreAJour" onAction="#handleUpdateTransporteur" prefWidth="150"/>
+            <Button text="Supprimer" fx:id="btnSupprimer" onAction="#handleDeleteTransporteur" prefWidth="150"/>
+        </HBox>
+
+        <Label fx:id="feedbackLabel" layoutX="20" layoutY="380" text="" visible="false" styleClass="feedbackLabel"/>
+
+    </VBox>
+
+</AnchorPane>
+

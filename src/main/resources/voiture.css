@@ -1,0 +1,92 @@
+.root {
+    -fx-background-color: #f5f7fa;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-image: url("com/example/livraison/views/images/voiture.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
+
+.label#errorMessage {
+    -fx-text-fill: red;
+    -fx-font-size: 13px;
+}
+
+#titleLabel {
+    -fx-font-size: 22px;
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+}
+
+.titre-principal {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: #dcdfe3;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 6px;
+}
+
+.text-field:focused {
+    -fx-border-color: #3498db;
+    -fx-border-width: 2px;
+}
+
+.button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: #2980b9;
+}
+
+.button:pressed {
+    -fx-background-color: #2471a3;
+}
+
+.list-view {
+    -fx-background-color: white;
+    -fx-border-color: #dcdfe3;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-pref-width: 300px;
+    -fx-pref-height: 200px;
+}
+
+.list-cell {
+    -fx-background-color: #f9f9f9;
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+}
+
+.list-cell:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #3498db;
+}
+
+.list-cell:focused {
+    -fx-background-color: #e0e0e0;
+    -fx-border-color: #3498db;
+}
+
+.list-cell .label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #333333;
+}
+
+
+
+

@@ -1,0 +1,118 @@
+.root {
+    -fx-background-image: url("com/example/livraison/views/images/livraison.jpg");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+
+
+
+.compact-card {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 10px;
+    -fx-padding: 10px;
+    -fx-spacing: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.5, 0, 5);
+}
+
+.ListView.card {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 0, 5);
+}
+
+
+.Label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+
+.TextField {
+    -fx-pref-width: 200px;
+    -fx-padding: 10px;
+    -fx-border-radius: 5px;
+    -fx-border-color: #cccccc;
+    -fx-background-color: #f9f9f9;
+}
+
+.TextField:focused {
+    -fx-border-color: #0066cc;
+}
+
+
+.ComboBox {
+    -fx-pref-width: 200px;
+    -fx-padding: 10px;
+    -fx-border-radius: 5px;
+    -fx-border-color: #cccccc;
+    -fx-background-color: #f9f9f9;
+}
+
+
+.DatePicker {
+    -fx-pref-width: 200px;
+    -fx-padding: 10px;
+    -fx-border-radius: 5px;
+    -fx-border-color: #cccccc;
+    -fx-background-color: #f9f9f9;
+}
+
+
+.Button {
+    -fx-padding: 10px 20px;
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.Button:hover {
+    -fx-background-color: #45a049;
+}
+
+
+.HBox {
+    -fx-alignment: center;
+    -fx-spacing: 10px;
+}
+
+
+#errorMessage {
+    -fx-font-size: 14px;
+    -fx-text-fill: red;
+    -fx-padding: 10px 0;
+}
+
+
+.ListView {
+    -fx-pref-width: 100%;
+    -fx-pref-height: 200px;
+    -fx-border-radius: 5px;
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #cccccc;
+    -fx-selection-bar: #0066cc;
+}
+
+
+.ListCell {
+    -fx-padding: 10px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 0 1 0;
+}
+
+.ListCell:focused {
+    -fx-background-color: #e6f7ff;
+}
+
+
+.ListCell:selected {
+    -fx-background-color: #b3d9ff;
+}

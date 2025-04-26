@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.livraison.Controllers.VoitureController"
+      stylesheets="@/voiture.css"
+      spacing="10" alignment="CENTER" >
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label fx:id="titleLabel" text="Gestion des Voitures" styleClass="titre-principal" />
+
+    <HBox spacing="10">
+
+        <VBox spacing="5">
+            <Label text="ID"/>
+            <TextField fx:id="id" editable="false"/>
+
+            <Label text="Modèle"/>
+            <TextField fx:id="modelField"/>
+
+            <Label text="Matricule"/>
+            <TextField fx:id="matriculeField"/>
+
+            <Label text="Capacité"/>
+            <TextField fx:id="capaciteField"/>
+
+            <Label fx:id="errorMessage" textFill="red" />
+
+            <HBox spacing="10">
+                <Button text="Ajouter" onAction="#addVoiture"/>
+                <Button text="Modifier" onAction="#modifyVoiture"/>
+                <Button text="Mettre à jour" fx:id="updateButton" onAction="#updateVoiture" visible="false"/>
+                <Button text="Supprimer" onAction="#deleteVoiture"/>
+            </HBox>
+        </VBox>
+
+        <VBox spacing="5">
+            <Label text="Liste des voitures"/>
+            <ListView fx:id="voitureListView" prefHeight="200" prefWidth="300"/>
+        </VBox>
+    </HBox>
+</VBox>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

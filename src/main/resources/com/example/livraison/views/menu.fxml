@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+
+<?import java.net.URL?>
+<VBox spacing="20" alignment="CENTER" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.livraison.Controllers.MenuController">
+    <padding>
+        <Insets top="50" right="50" bottom="50" left="50"/>
+    </padding>
+
+    <stylesheets>
+        <URL value="@/menu-style.css"/>
+    </stylesheets>
+
+
+    <Button text="Gestion des Transporteurs" onAction="#openTransporteurFormWindow"/>
+    <Button text="Gestion des Voitures" onAction="#openVoiture"/>
+    <Button text="Gestion des Livraisons" onAction="#openLivraison"/>
+
+</VBox>
+

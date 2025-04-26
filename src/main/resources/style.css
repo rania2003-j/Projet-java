@@ -1,0 +1,93 @@
+.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 1);
+}
+
+.button:hover {
+    -fx-background-color: #45a049;
+}
+
+.button:disabled {
+    -fx-background-color: #e0e0e0;
+    -fx-text-fill: black;
+}
+
+.text-field {
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px;
+    -fx-background-color: #fafafa;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-border-color: #4CAF50;
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.grid-pane {
+    -fx-padding: 20px;
+}
+
+.vbox {
+    -fx-spacing: 15px;
+    -fx-padding: 20px;
+}
+
+.hbox {
+    -fx-spacing: 10px;
+    -fx-alignment: center;
+}
+
+.list-view {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+}
+
+#feedbackLabel {
+    -fx-font-size: 14px;
+    -fx-text-fill: #28a745;
+    -fx-font-weight: bold;
+}
+
+
+.anchor-pane {
+    -fx-background-image: url("com/example/livraison/views/images/fond-transporteur.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: #f2f2f2;
+
+}
+
+.button-disponible {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+}
+
+.button-non-disponible {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+}
+
+.button-disponible:hover {
+    -fx-background-color: #218838;
+}
+
+.button-non-disponible:hover {
+    -fx-background-color: #c82333;
+}
+
+

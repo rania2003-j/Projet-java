@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.Scene?>
+<?import javafx.stage.Stage?>
+
+<?import java.net.URL?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.livraison.Controllers.TransporteurController"
+            prefHeight="500.0" prefWidth="600.0"
+            styleClass="anchor-pane"
+            stylesheets="@/style.css">
+
+
+
+    <VBox layoutX="20" layoutY="20" spacing="15">
+
+        <GridPane hgap="10" vgap="15">
+            <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="idField" promptText="ID" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Nom:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="nomField" promptText="Nom" prefWidth="200" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Prénom:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="prenomField" promptText="Prénom" prefWidth="200" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Disponibilité:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <AnchorPane GridPane.rowIndex="3" GridPane.columnIndex="1">
+                <Button fx:id="btnDisponible" text="Disponible" layoutX="0" layoutY="0" prefWidth="100" onAction="#handleDisponible"/>
+                <Button fx:id="btnNonDisponible" text="Non Disponible" layoutX="110" layoutY="0" prefWidth="120" onAction="#handleNonDisponible"/>
+            </AnchorPane>
+        </GridPane>
+
+        <HBox spacing="10">
+            <Button fx:id="btnAjouter" text="Ajouter" prefWidth="120" onAction="#addTransporteur"/>
+            <Button fx:id="btnEnregistrerModifs" text="Enregistrer les modifications" prefWidth="180"
+                    onAction="#enregistrerModifications" disable="true"/>
+        </HBox>
+
+
+    </VBox>
+
+</AnchorPane>
+
