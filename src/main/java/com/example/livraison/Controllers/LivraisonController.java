@@ -51,20 +51,24 @@ public class LivraisonController {
 
     @FXML
     private void initialize() {
-        // Charger les états
+
         etatLivraisonComboBox.setItems(
                 FXCollections.observableArrayList("livrée", "non livrée")
         );
-        // Charger les transporteurs
+
         List<Transporteur> transports = livraisonService.getAllTransporteurs();
         transporteurComboBox.setItems(FXCollections.observableArrayList(transports));
         transporteurComboBox.setConverter(new StringConverter<Transporteur>() {
             @Override public String toString(Transporteur t) {
-                return t == null ? "" : t.getId() + " – " + t.getNom();
+                return t == null
+                        ? ""
+                        : t.getNom() + " " + t.getPrenom();
             }
-            @Override public Transporteur fromString(String s) { return null; }
+            @Override public Transporteur fromString(String s) {
+                return null;
+            }
         });
-        // Charger les voitures
+
         List<Voiture> voitures = livraisonService.getAllVoitures();
         voitureComboBox.setItems(FXCollections.observableArrayList(voitures));
         voitureComboBox.setConverter(new StringConverter<Voiture>() {
@@ -105,9 +109,9 @@ public class LivraisonController {
         card.getChildren().addAll(t, v, e, d, q, qrView);
 
         card.setOnMouseClicked(evt -> {
-            // Sélectionner la livraison
+
             selectedLivraison = livraison;
-            // Pré-remplir le formulaire
+
             transporteurComboBox.getItems().stream()
                     .filter(tr -> tr.getId() == livraison.getTransporteurId())
                     .findFirst().ifPresent(transporteurComboBox::setValue);
@@ -117,7 +121,7 @@ public class LivraisonController {
             etatLivraisonComboBox.setValue(livraison.getEtatLivraison());
             dateLivraisonField.setValue(livraison.getDateLivraison());
             showSuccessMessage("Livraison sélectionnée.");
-            // Afficher le QR
+
             try {
                 String content = livraison.getQRCodeContent();
                 String path = "livraison/qrcodes/livraison_" + livraison.getId() + ".png";

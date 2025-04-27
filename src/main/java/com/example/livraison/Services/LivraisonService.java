@@ -10,8 +10,6 @@ import javafx.collections.ObservableList;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -70,6 +68,52 @@ public class LivraisonService {
         }
     }
 
+    // Méthode pour marquer le QR code comme utilisé
+    public boolean markQRCodeAsUsed(int livraisonId) {
+        String sql = "UPDATE livraison SET qr_used = TRUE WHERE id = ? AND qr_used = FALSE";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, livraisonId);
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0; // Retourne true si le QR code a été marqué comme utilisé, sinon false
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la mise à jour du QR code : " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Méthode pour vérifier si le QR code a déjà été utilisé
+    public boolean isQRCodeUsed(int livraisonId) {
+        String sql = "SELECT qr_used FROM livraison WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, livraisonId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBoolean("qr_used");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la vérification du QR code : " + e.getMessage());
+        }
+        return false;
+    }
+
+
+    public void scanQRCode(int livraisonId) {
+        if (isQRCodeUsed(livraisonId)) {
+            System.out.println("QR Code déjà utilisé");
+
+        } else {
+            boolean success = markQRCodeAsUsed(livraisonId);
+            if (success) {
+                System.out.println("QR Code marqué comme utilisé");
+
+            } else {
+                System.out.println("Erreur lors de la mise à jour du QR code");
+            }
+        }
+    }
+
+
     public void createLivraison(Livraison livraison) {
         String token = UUID.randomUUID().toString();
         String sql = "INSERT INTO livraison (transporteur_id, voiture_id, etat_livraison, date_livraison, qr_used, qr_code_data, qr_token) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -79,7 +123,18 @@ public class LivraisonService {
             stmt.setString(3, livraison.getEtatLivraison());
             stmt.setDate(4, Date.valueOf(livraison.getDateLivraison()));
             stmt.setBoolean(5, false);
-            stmt.setString(6, livraison.generateQRCodeContent());
+
+
+            String transporteurName = getNomCompletTransporteur(livraison.getTransporteurId());
+            String voitureModel = getModeleVoiture(livraison.getVoitureId());
+
+            String qrContent = "=== Livraison ===\n"
+                    + "Transporteur : " + transporteurName + "\n"
+                    + "Voiture : " + voitureModel + "\n"
+                    + "État : " + livraison.getEtatLivraison() + "\n"
+                    + "Date : " + livraison.getDateLivraison();
+
+            stmt.setString(6, qrContent);
             stmt.setString(7, token);
 
             int rows = stmt.executeUpdate();
@@ -91,15 +146,9 @@ public class LivraisonService {
                         if (!qrDir.exists()) qrDir.mkdirs();
                         String qrPath = "livraison/qrcodes/livraison_" + newId + ".png";
 
-                        String host;
-                        try {
-                            host = InetAddress.getLocalHost().getHostAddress();
-                        } catch (UnknownHostException e) {
-                            host = "localhost";
-                        }
-                        String urlScan = "http://" + host + ":8080/api/scan?token=" + token;
-                        QRCodeGenerator.generateQRCodeImage(urlScan, qrPath);
-                        System.out.println("Livraison #" + newId + " créée, QR Code généré : " + qrPath);
+
+                        QRCodeGenerator.generateQRCodeImage(qrContent, qrPath);
+                        System.out.println("Livraison #" + newId + " créée avec QR Code (infos livraison) : " + qrPath);
                     }
                 }
             }
@@ -107,6 +156,7 @@ public class LivraisonService {
             e.printStackTrace();
         }
     }
+
 
     public ObservableList<Livraison> getAllLivraisons() {
         ObservableList<Livraison> list = FXCollections.observableArrayList();
@@ -139,16 +189,17 @@ public class LivraisonService {
 
     public List<Transporteur> getAllTransporteurs() {
         List<Transporteur> list = new ArrayList<>();
-        String sql = "SELECT id, nom, prenom, isDisponible FROM transporteur";
+        String sql = "SELECT id, nom, prenom, is_disponible FROM transporteur";
         try (PreparedStatement stmt = connection.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                list.add(new Transporteur(
+                Transporteur t = new Transporteur(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
-                        rs.getBoolean("isDisponible")
-                ));
+                        rs.getBoolean("is_disponible")
+                );
+                list.add(t);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -176,26 +227,22 @@ public class LivraisonService {
     }
 
     public void updateLivraison(Livraison livraison) throws SQLException {
-        if (!doesTransporteurExist(livraison.getTransporteurId()))
-            throw new SQLException("Transporteur ID invalide !");
-        if (!doesVoitureExist(livraison.getVoitureId()))
-            throw new SQLException("Voiture ID invalide !");
-        String sql = "UPDATE livraison SET transporteur_id = ?, voiture_id = ?, etat_livraison = ?, date_livraison = ? WHERE id = ?";
+        if (!doesTransporteurExist(livraison.getTransporteurId())) {
+            throw new SQLException("Transporteur avec l'ID " + livraison.getTransporteurId() + " n'existe pas.");
+        }
+        if (!doesVoitureExist(livraison.getVoitureId())) {
+            throw new SQLException("Voiture avec l'ID " + livraison.getVoitureId() + " n'existe pas.");
+        }
+
+        String sql = "UPDATE livraison SET transporteur_id = ?, voiture_id = ?, etat_livraison = ?, date_livraison = ?, qr_code_data = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, livraison.getTransporteurId());
             stmt.setInt(2, livraison.getVoitureId());
             stmt.setString(3, livraison.getEtatLivraison());
             stmt.setDate(4, Date.valueOf(livraison.getDateLivraison()));
-            stmt.setInt(5, livraison.getId());
-            if (stmt.executeUpdate() == 0) throw new SQLException("Aucune ligne mise à jour.");
-        }
-    }
-
-    public void deleteLivraison(int id) throws SQLException {
-        String sql = "DELETE FROM livraison WHERE id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            if (stmt.executeUpdate() == 0) throw new SQLException("Aucune ligne supprimée.");
+            stmt.setString(5, livraison.getQrCodeData());
+            stmt.setInt(6, livraison.getId());
+            stmt.executeUpdate();
         }
     }
 
@@ -209,9 +256,9 @@ public class LivraisonService {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erreur récupération transporteur : " + e.getMessage());
+            e.printStackTrace();
         }
-        return "Transporteur inconnu";
+        return "Nom Inconnu";
     }
 
     public String getModeleVoiture(int voitureId) {
@@ -224,9 +271,22 @@ public class LivraisonService {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erreur récupération voiture : " + e.getMessage());
+            e.printStackTrace();
         }
-        return "Modèle inconnu";
+        return "Modèle Inconnu";
+    }
+
+
+    public boolean deleteLivraison(int livraisonId) {
+        String sql = "DELETE FROM livraison WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, livraisonId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la suppression de la livraison : " + e.getMessage());
+            return false;
+        }
     }
 }
 

@@ -12,6 +12,8 @@ module com.example.livraison {
     requires java.sql;
 
     requires javafx.media;
+    requires telegrambots.meta;
+    requires telegrambots;
 
     opens com.example.livraison to javafx.fxml;
     opens com.example.livraison.Controllers to javafx.fxml;
