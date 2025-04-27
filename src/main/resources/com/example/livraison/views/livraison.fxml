@@ -2,8 +2,6 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.collections.FXCollections?>
-<?import java.lang.String?>
 <?import javafx.scene.image.ImageView?>
 
 <?import java.net.URL?>
@@ -21,60 +19,55 @@
           AnchorPane.rightAnchor="20.0"
           AnchorPane.topAnchor="20.0"
           AnchorPane.bottomAnchor="20.0"
-          styleClass="card">
+          styleClass="compact-card">
 
         <Label text="Gestion des Livraisons"
                style="-fx-font-size: 20px; -fx-font-weight: bold;" />
 
-        <TextField fx:id="transporteurIdField" promptText="Transporteur N°" />
-        <TextField fx:id="voitureIdField"    promptText="Voiture N°" />
-        <TextField fx:id="transporteurNameField" promptText="Nom Transporteur" />
-        <TextField fx:id="voitureModelField"     promptText="Modèle Voiture" />
-        <ComboBox fx:id="etatLivraisonComboBox"  promptText="État de Livraison" />
-        <DatePicker fx:id="dateLivraisonField"   promptText="Date de Livraison" />
+
+        <ComboBox fx:id="transporteurComboBox" promptText="Choisissez un transporteur"/>
+        <ComboBox fx:id="voitureComboBox"     promptText="Choisissez une voiture"/>
+        <ComboBox fx:id="etatLivraisonComboBox" promptText="État"/>
+        <DatePicker fx:id="dateLivraisonField"  promptText="Date"/>
+
 
         <HBox spacing="15" alignment="CENTER">
-            <Button fx:id="addButton"             text="Ajouter"       onAction="#addLivraison" />
-            <Button fx:id="updateButton"          text="Mettre à jour" onAction="#updateLivraison" />
-            <Button fx:id="deleteButton"          text="Supprimer"     onAction="#deleteLivraison" />
-            <Button fx:id="searchLivraisonButton" text="Rechercher"    onAction="#onSearchLivraison" />
+            <Button fx:id="addButton"    text="Ajouter"        onAction="#addLivraison" />
+            <Button fx:id="updateButton" text="Mettre à jour"  onAction="#updateLivraison" />
+            <Button fx:id="deleteButton" text="Supprimer"       onAction="#deleteLivraison" />
         </HBox>
 
         <Label fx:id="errorMessage"   text="" style="-fx-text-fill: red;" />
         <Label fx:id="successLabel"   text="" style="-fx-text-fill: green; -fx-font-weight: bold;" visible="false" />
 
+        <Separator />
+
         <Label text="Liste des Livraisons :" style="-fx-font-weight: bold;" />
+
         <FlowPane fx:id="cardsContainer"
                   hgap="10" vgap="10" prefWrapLength="700"
                   style="-fx-padding: 10;" />
-
-        <Separator />
-
-        <Label text="Coller les données du QR Code :" />
-        <TextField fx:id="qrCodeInputField"
-                   promptText="Contenu complet du QR Code" />
-
-        <HBox spacing="10" alignment="CENTER">
-            <Button fx:id="scanButton" text="Scan QR Code" onAction="#scanQRCode" />
-        </HBox>
 
         <VBox fx:id="livraisonDetailsBox"
               spacing="5"
               style="-fx-border-color: #ccc; -fx-padding: 10;"
               visible="false">
-
-            <Label fx:id="lblId"            text="ID :" />
-            <Label fx:id="lblTransporteur"  text="Transporteur :" />
-            <Label fx:id="lblVoiture"       text="Voiture :" />
-            <Label fx:id="lblEtat"          text="État :" />
-            <Label fx:id="lblDate"          text="Date :" />
+            <Label fx:id="lblId"          text="ID :" />
+            <Label fx:id="lblTransporteur" text="Transporteur :" />
+            <Label fx:id="lblVoiture"      text="Voiture :" />
+            <Label fx:id="lblEtat"         text="État :" />
+            <Label fx:id="lblDate"         text="Date :" />
+            <Label fx:id="lblQrStatus"     text="Statut QR: Non utilisé" />
         </VBox>
 
         <ImageView fx:id="qrImageView"
                    fitWidth="200" fitHeight="200"
-                   preserveRatio="true" />
+                   preserveRatio="true"
+                   visible="false" />
 
     </VBox>
 </AnchorPane>
+
+
 
 

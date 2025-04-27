@@ -1,122 +1,134 @@
 package com.example.livraison.Controllers;
 
 import com.example.livraison.Models.Livraison;
+import com.example.livraison.Models.Transporteur;
+import com.example.livraison.Models.Voiture;
 import com.example.livraison.Services.LivraisonService;
 import com.example.livraison.utils.QRCodeGenerator;
+import com.google.zxing.WriterException;
 import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 public class LivraisonController {
 
     private final LivraisonService livraisonService = new LivraisonService();
-    private Livraison selectedLivraison = null;
+    private Livraison selectedLivraison;
 
-    @FXML
-    private FlowPane cardsContainer;
-
-    @FXML
-    private TextField transporteurIdField;
-
-    @FXML
-    private TextField voitureIdField;
-
-    @FXML
-    private ComboBox<String> etatLivraisonComboBox;
-
-    @FXML
-    private DatePicker dateLivraisonField;
-
-    @FXML
-    private Label errorMessage;
-
-    @FXML
-    private Label successLabel;
-
-    @FXML
-    private Button addButton;
-
-    @FXML
-    private StackPane videoView;
-
-    @FXML
-    private ImageView qrImageView;
-
-    @FXML
-    private TextField transporteurNameField;
-
-    @FXML
-    private TextField voitureModelField;
-
-    @FXML
-    private Button searchLivraisonButton;
-
-    @FXML
-    private TextField qrCodeInputField;
-
-    @FXML
-    private Button scanButton;
-
-    @FXML
-    private VBox livraisonDetailsBox;
-
-    @FXML
-    private Label lblId;
-    @FXML
-    private Label lblTransporteur;
-    @FXML
-    private Label lblVoiture;
-    @FXML
-    private Label lblEtat;
-    @FXML
-    private Label lblDate;
+    @FXML private ComboBox<Transporteur> transporteurComboBox;
+    @FXML private ComboBox<Voiture>     voitureComboBox;
+    @FXML private ComboBox<String>     etatLivraisonComboBox;
+    @FXML private DatePicker           dateLivraisonField;
+    @FXML private Button               addButton;
+    @FXML private Button               updateButton;
+    @FXML private Button               deleteButton;
+    @FXML private Label                errorMessage;
+    @FXML private Label                successLabel;
+    @FXML private FlowPane             cardsContainer;
+    @FXML private VBox                 livraisonDetailsBox;
+    @FXML private Label                lblId;
+    @FXML private Label                lblTransporteur;
+    @FXML private Label                lblVoiture;
+    @FXML private Label                lblEtat;
+    @FXML private Label                lblDate;
+    @FXML private Label                lblQrStatus;
+    @FXML private ImageView            qrImageView;
 
     @FXML
     private void initialize() {
-        etatLivraisonComboBox.setItems(FXCollections.observableArrayList("livrée", "non livrée"));
+        // Charger les états
+        etatLivraisonComboBox.setItems(
+                FXCollections.observableArrayList("livrée", "non livrée")
+        );
+        // Charger les transporteurs
+        List<Transporteur> transports = livraisonService.getAllTransporteurs();
+        transporteurComboBox.setItems(FXCollections.observableArrayList(transports));
+        transporteurComboBox.setConverter(new StringConverter<Transporteur>() {
+            @Override public String toString(Transporteur t) {
+                return t == null ? "" : t.getId() + " – " + t.getNom();
+            }
+            @Override public Transporteur fromString(String s) { return null; }
+        });
+        // Charger les voitures
+        List<Voiture> voitures = livraisonService.getAllVoitures();
+        voitureComboBox.setItems(FXCollections.observableArrayList(voitures));
+        voitureComboBox.setConverter(new StringConverter<Voiture>() {
+            @Override public String toString(Voiture v) {
+                return v == null ? "" : v.getId() + " – " + v.getModel();
+            }
+            @Override public Voiture fromString(String s) { return null; }
+        });
+
+        livraisonDetailsBox.setVisible(false);
         loadLivraisons();
-        searchLivraisonButton.setOnAction(event -> onSearchLivraison());
-        scanButton.setOnAction(event -> scanQRCode());
     }
 
     private void loadLivraisons() {
         cardsContainer.getChildren().clear();
-        for (Livraison livraison : livraisonService.getAllLivraisons()) {
-            VBox card = createCard(livraison);
-            cardsContainer.getChildren().add(card);
+        for (Livraison liv : livraisonService.getAllLivraisons()) {
+            cardsContainer.getChildren().add(createCard(liv));
         }
     }
 
     private VBox createCard(Livraison livraison) {
-        VBox card = new VBox();
-        card.setStyle("-fx-border-color: black; -fx-padding: 10px; -fx-background-color: #f1f1f1; -fx-spacing: 10px;");
-        card.getStyleClass().add("compact-card");
+        VBox card = new VBox(10);
+        card.setStyle("-fx-border-color: black; -fx-padding: 10px; -fx-background-color: #f1f1f1;");
 
-        Label transporteurLabel = new Label("Transporteur N°: " + livraison.getTransporteurId());
-        Label voitureLabel = new Label("Voiture N°: " + livraison.getVoitureId());
-        Label etatLabel = new Label("État: " + livraison.getEtatLivraison());
-        Label dateLabel = new Label("Date: " + livraison.getDateLivraison());
+        Label t = new Label("Transporteur: " + livraison.getNomTransporteur());
+        Label v = new Label("Voiture: "     + livraison.getModeleVoiture());
+        Label e = new Label("État: "        + livraison.getEtatLivraison());
+        Label d = new Label("Date: "        + livraison.getDateLivraison());
+        Label q = new Label("QR utilisé ? " + (livraison.isQrUsed() ? "Oui" : "Non"));
+        q.setStyle(livraison.isQrUsed() ? "-fx-text-fill: red;" : "-fx-text-fill: green;");
 
-        card.getChildren().addAll(transporteurLabel, voitureLabel, etatLabel, dateLabel);
+        ImageView qrView = new ImageView();
+        qrView.setFitWidth(150);
+        qrView.setFitHeight(150);
+        qrView.setPreserveRatio(true);
+        qrView.setVisible(false);
 
-        card.setOnMouseClicked(event -> {
+        card.getChildren().addAll(t, v, e, d, q, qrView);
+
+        card.setOnMouseClicked(evt -> {
+            // Sélectionner la livraison
             selectedLivraison = livraison;
-            transporteurIdField.setText(String.valueOf(livraison.getTransporteurId()));
-            voitureIdField.setText(String.valueOf(livraison.getVoitureId()));
+            // Pré-remplir le formulaire
+            transporteurComboBox.getItems().stream()
+                    .filter(tr -> tr.getId() == livraison.getTransporteurId())
+                    .findFirst().ifPresent(transporteurComboBox::setValue);
+            voitureComboBox.getItems().stream()
+                    .filter(vo -> vo.getId() == livraison.getVoitureId())
+                    .findFirst().ifPresent(voitureComboBox::setValue);
             etatLivraisonComboBox.setValue(livraison.getEtatLivraison());
             dateLivraisonField.setValue(livraison.getDateLivraison());
-            showSuccessMessage("Livraison sélectionnée pour modification/suppression.");
-            loadQRCode(livraison.getId());
+            showSuccessMessage("Livraison sélectionnée.");
+            // Afficher le QR
+            try {
+                String content = livraison.getQRCodeContent();
+                String path = "livraison/qrcodes/livraison_" + livraison.getId() + ".png";
+                File f = new File(path);
+                if (!f.exists()) QRCodeGenerator.generateQRCodeImage(content, path);
+                qrView.setImage(new Image(f.toURI().toString()));
+                qrView.setVisible(true);
+            } catch (IOException | WriterException ex) {
+                ex.printStackTrace();
+                showErrorMessage("Erreur génération QR : " + ex.getMessage());
+            }
         });
 
         return card;
@@ -125,211 +137,84 @@ public class LivraisonController {
     @FXML
     private void addLivraison() {
         try {
-            if (!validateFields()) {
-                throw new IllegalArgumentException("Tous les champs doivent être remplis.");
-            }
-
-            int transporteurId = Integer.parseInt(transporteurIdField.getText());
-            int voitureId = Integer.parseInt(voitureIdField.getText());
-            String etatLivraison = etatLivraisonComboBox.getValue();
-            LocalDate dateLivraison = dateLivraisonField.getValue();
-
-            if (dateLivraison == null) {
-                throw new IllegalArgumentException("La date de livraison est obligatoire.");
-            }
-
-            boolean transporteurExists = livraisonService.doesTransporteurExist(transporteurId);
-            if (!transporteurExists) {
-                showErrorMessage("Le transporteur avec cet ID n'existe pas !");
-                return;
-            }
-
-            Livraison livraison = new Livraison(0, transporteurId, voitureId, etatLivraison, dateLivraison);
-            livraisonService.createLivraison(livraison);
-            loadLivraisons();
-            resetFields();
-            showSuccessMessage("Livraison ajoutée avec succès !");
-            loadQRCode(livraison.getId());
-
-        } catch (NumberFormatException e) {
-            showErrorMessage("Veuillez entrer des valeurs numériques pour les IDs.");
-        } catch (IllegalArgumentException e) {
-            showErrorMessage(e.getMessage());
-        } catch (Exception e) {
-            showErrorMessage("Erreur : " + e.getMessage());
+            if (!validateFields()) throw new IllegalArgumentException("Tous les champs obligatoires doivent être remplis.");
+            Transporteur tr = transporteurComboBox.getValue();
+            Voiture vo = voitureComboBox.getValue();
+            String et = etatLivraisonComboBox.getValue();
+            LocalDate da = dateLivraisonField.getValue();
+            if (da.isBefore(LocalDate.now())) throw new IllegalArgumentException("Date passée !");
+            Livraison liv = new Livraison(0, tr.getId(), vo.getId(), et, da);
+            liv.setNomTransporteur(tr.getNom());
+            liv.setModeleVoiture(vo.getModel());
+            livraisonService.createLivraison(liv);
+            loadLivraisons(); resetFields(); showSuccessMessage("Ajouté avec succès !");
+        } catch (Exception ex) {
+            showErrorMessage(ex.getMessage());
         }
     }
 
     @FXML
     private void updateLivraison() {
         try {
-            if (selectedLivraison == null)
-                throw new IllegalArgumentException("Veuillez sélectionner une livraison à mettre à jour.");
-            if (!validateFields()) throw new IllegalArgumentException("Tous les champs doivent être remplis.");
-
-            int transporteurId = Integer.parseInt(transporteurIdField.getText());
-            int voitureId = Integer.parseInt(voitureIdField.getText());
-            String etatLivraison = etatLivraisonComboBox.getValue();
-            LocalDate dateLivraison = dateLivraisonField.getValue();
-
-            boolean transporteurExists = livraisonService.doesTransporteurExist(transporteurId);
-            if (!transporteurExists) {
-                showErrorMessage("Le transporteur avec cet ID n'existe pas !");
-                return;
-            }
-
-            Livraison updated = new Livraison(selectedLivraison.getId(), transporteurId, voitureId, etatLivraison, dateLivraison);
-            livraisonService.updateLivraison(updated);
-
-            loadLivraisons();
-            resetFields();
-            showSuccessMessage("Livraison mise à jour avec succès !");
-            loadQRCode(updated.getId());
-
-        } catch (NumberFormatException e) {
-            showErrorMessage("Veuillez entrer des valeurs numériques pour les IDs.");
-        } catch (IllegalArgumentException e) {
-            showErrorMessage(e.getMessage());
-        } catch (Exception e) {
-            showErrorMessage("Erreur : " + e.getMessage());
+            if (selectedLivraison == null) throw new IllegalArgumentException("Sélectionnez une livraison.");
+            if (!validateFields()) throw new IllegalArgumentException("Tous les champs obligatoires doivent être remplis.");
+            Transporteur tr = transporteurComboBox.getValue();
+            Voiture vo = voitureComboBox.getValue();
+            selectedLivraison.setTransporteurId(tr.getId());
+            selectedLivraison.setVoitureId(vo.getId());
+            selectedLivraison.setNomTransporteur(tr.getNom());
+            selectedLivraison.setModeleVoiture(vo.getModel());
+            selectedLivraison.setEtatLivraison(etatLivraisonComboBox.getValue());
+            selectedLivraison.setDateLivraison(dateLivraisonField.getValue());
+            livraisonService.updateLivraison(selectedLivraison);
+            loadLivraisons(); resetFields(); showSuccessMessage("Mis à jour avec succès !");
+        } catch (Exception ex) {
+            showErrorMessage(ex.getMessage());
         }
     }
 
     @FXML
     private void deleteLivraison() {
         try {
-            if (selectedLivraison == null)
-                throw new IllegalArgumentException("Veuillez sélectionner une livraison à supprimer.");
-
+            if (selectedLivraison == null) throw new IllegalArgumentException("Sélectionnez une livraison.");
             livraisonService.deleteLivraison(selectedLivraison.getId());
-
-            loadLivraisons();
-            resetFields();
-            showSuccessMessage("Livraison supprimée avec succès !");
-
-        } catch (Exception e) {
-            showErrorMessage("Erreur : " + e.getMessage());
-        }
-    }
-
-    private void loadQRCode(int livraisonId) {
-        try {
-            String qrCodePath = "qrcodes/livraison_" + livraisonId + ".png";
-            File qrCodeFile = new File(qrCodePath);
-
-            if (!qrCodeFile.exists()) {
-                String qrContent = selectedLivraison.getQRCodeContent();
-                QRCodeGenerator.generateQRCodeImage(qrContent, qrCodePath);
-            }
-
-            Image qrImage = new Image(qrCodeFile.toURI().toString());
-            qrImageView.setImage(qrImage);
-
-        } catch (Exception e) {
-            showErrorMessage("Erreur lors du chargement/génération du QR Code : " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void onSearchLivraison() {
-        String transporteurNom = transporteurNameField.getText();
-        String voitureModele = voitureModelField.getText();
-
-        Livraison livraison = livraisonService.findByTransporteurNameAndVoitureModel(transporteurNom, voitureModele);
-
-        if (livraison != null) {
-            VBox card = createCard(livraison);
-            cardsContainer.getChildren().clear();
-            cardsContainer.getChildren().add(card);
-
-            card.setStyle("-fx-background-color: #d4edda; -fx-border-color: #155724; -fx-border-radius: 10; -fx-background-radius: 10;");
-            PauseTransition highlightPause = new PauseTransition(Duration.seconds(2));
-            highlightPause.setOnFinished(e -> card.setStyle(""));
-            highlightPause.play();
-
-            showSuccessMessage("✅ Livraison trouvée avec succès !");
-        } else {
-            showErrorMessage("Livraison introuvable.");
+            loadLivraisons(); resetFields(); showSuccessMessage("Supprimé avec succès !");
+        } catch (Exception ex) {
+            showErrorMessage(ex.getMessage());
         }
     }
 
     private boolean validateFields() {
-        return !transporteurIdField.getText().isEmpty() &&
-                !voitureIdField.getText().isEmpty() &&
-                etatLivraisonComboBox.getValue() != null &&
-                dateLivraisonField.getValue() != null;
+        return transporteurComboBox.getValue() != null
+                && voitureComboBox.getValue() != null
+                && etatLivraisonComboBox.getValue() != null
+                && dateLivraisonField.getValue() != null;
     }
 
     private void resetFields() {
-        transporteurIdField.clear();
-        voitureIdField.clear();
+        transporteurComboBox.setValue(null);
+        voitureComboBox.setValue(null);
         etatLivraisonComboBox.setValue(null);
         dateLivraisonField.setValue(null);
-        transporteurNameField.clear();
-        voitureModelField.clear();
         selectedLivraison = null;
+        errorMessage.setVisible(false);
+        successLabel.setVisible(false);
+        qrImageView.setVisible(false);
     }
 
-    private void showErrorMessage(String message) {
-        errorMessage.setText(message);
-        errorMessage.setStyle("-fx-text-fill: red;");
+    private void showErrorMessage(String msg) {
+        errorMessage.setText(msg);
+        errorMessage.setVisible(true);
+        PauseTransition pt = new PauseTransition(Duration.seconds(3));
+        pt.setOnFinished(e -> errorMessage.setVisible(false));
+        pt.play();
     }
 
-    private void showSuccessMessage(String message) {
-        successLabel.setText(message);
+    private void showSuccessMessage(String msg) {
+        successLabel.setText(msg);
         successLabel.setVisible(true);
-
-        PauseTransition pause = new PauseTransition(Duration.seconds(2));
-        pause.setOnFinished(event -> successLabel.setVisible(false));
-        pause.play();
-    }
-
-    @FXML
-    private void scanQRCode() {
-        String qrData = qrCodeInputField.getText().trim();
-
-        if (qrData.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Champ vide", "Veuillez coller les données du QR code.");
-            return;
-        }
-
-        Livraison livraison = livraisonService.handleQrScan(qrData);
-        if (livraison == null) {
-            showAlert(Alert.AlertType.ERROR, "QR Code", "QR Code invalide ou déjà utilisé !");
-            livraisonDetailsBox.setVisible(false);
-        } else {
-
-            lblId.setText("ID: " + livraison.getId());
-            lblTransporteur.setText("Transporteur ID: " + livraison.getTransporteurId());
-            lblVoiture.setText("Voiture ID: " + livraison.getVoitureId());
-            lblEtat.setText("État: " + livraison.getEtatLivraison());
-            lblDate.setText("Date: " + livraison.getDateLivraison().toString());
-
-            livraisonDetailsBox.setVisible(true);
-            showAlert(Alert.AlertType.INFORMATION, "Succès", "QR Code valide. Livraison trouvée !");
-        }
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        PauseTransition pt = new PauseTransition(Duration.seconds(2));
+        pt.setOnFinished(e -> successLabel.setVisible(false));
+        pt.play();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
